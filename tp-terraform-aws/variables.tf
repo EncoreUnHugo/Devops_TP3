@@ -46,3 +46,15 @@ variable "my_ip" {
   description = "Votre IP publique pour autoriser SSH (format CIDR : x.x.x.x/32)"
   type        = string
 }
+
+variable "is_localstack" {
+  description = "true en Phase 1 LocalStack, false en Phase 2 AWS réel"
+  type        = bool
+  default     = false
+}
+
+variable "ami_id" {
+  description = "AMI ID Ubuntu"
+  type        = string
+  default     = "ami-0df7af28392da97e9"  # Ubuntu 24.04 LTS eu-west-3
+}

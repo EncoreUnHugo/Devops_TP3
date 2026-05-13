@@ -74,14 +74,6 @@ resource "aws_key_pair" "deployer" {
   public_key = file("~/.ssh/tp_terraform.pub")
 }
 
-# ── AMI ────────────────────────────────────────────────────────
-# LocalStack n'a pas les vraies AMIs : on utilise un ID fictif en local
-variable "ami_id" {
-  description = "AMI ID (ami-00000000 pour LocalStack, vrai ID pour AWS réel)"
-  type        = string
-  default     = "ami-00000000"   # Valeur fictive pour LocalStack
-}
-
 # ── EC2 ────────────────────────────────────────────────────────
 resource "aws_instance" "web" {
   ami                    = var.ami_id
@@ -90,7 +82,14 @@ resource "aws_instance" "web" {
   vpc_security_group_ids = [aws_security_group.web.id]
   key_name               = aws_key_pair.deployer.key_name
 
-  # root_block_device retiré pour LocalStack — sera remis pour AWS réel
+  dynamic "root_block_device" {
+    for_each = var.is_localstack ? [] : [1]
+    content {
+      volume_size = 20
+      volume_type = "gp3"
+      encrypted   = true
+    }
+  }
 
   tags = { Name = "${var.project_name}-web" }
 }
